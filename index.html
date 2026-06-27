@@ -117,7 +117,7 @@
   .vac-item-amount { width:88px; text-align:right; font-size:0.82rem; font-weight:600; color:#c2410c; border:1.5px solid #fde68a; background:#fffbeb; border-radius:10px; padding:5px 8px; outline:none; font-family:inherit; -webkit-appearance:none; transition:border 0.2s; }
   .vac-item-amount:focus { border-color:#f97316; background:#fff7ed; }
   .vac-currency { font-size:0.72rem; color:#fb923c; flex-shrink:0; font-weight:600; }
-  .vac-add-btn { display:inline-flex; align-items:center; gap:5px; color:#f97316; font-size:0.75rem; font-weight:700; background:none; border:none; cursor:pointer; padding:6px 0 2px; -webkit-tap-highlight-color:transparent; }
+  .vac-add-btn { display:inline-flex; align-items:center; gap:5px; color:#f97316; font-size:0.75rem; font-weight:700; background:none; border:none; cursor:pointer; padding:6px 0 2px; -webkit-tap-highlight-color:transparent; font-family:inherit; }
   .trip-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; padding-top:10px; border-top:1px solid #fff7ed; }
   .chip { background:#fff7ed; border:1px solid #fed7aa; border-radius:20px; font-size:0.7rem; padding:4px 10px; color:#c2410c; font-weight:600; }
   .add-trip-btn { width:100%; padding:14px; border-radius:14px; background:white; border:2px dashed #fde68a; color:#f97316; font-size:0.85rem; font-weight:700; cursor:pointer; margin-bottom:12px; font-family:inherit; -webkit-tap-highlight-color:transparent; transition:background 0.2s; }
@@ -194,7 +194,7 @@ function renderVacances(){
     const secs=t.sections.map((sec,si)=>{
       const st=secTotal(sec);
       const rows=sec.items.map((it,ii)=>`<div class="vac-item-row"><span class="vac-dot"></span><input class="vac-item-name" type="text" placeholder="Description…" value="${it.name}" onchange="trips[${ti}].sections[${si}].items[${ii}].name=this.value"><input class="vac-item-amount" type="text" inputmode="decimal" placeholder="0,00" value="${it.amt||''}" oninput="trips[${ti}].sections[${si}].items[${ii}].amt=parseFloat(this.value.replace(',','.'))||0;calc()"><span class="vac-currency">€</span><button class="vac-del-btn" onclick="delVacItem(${ti},${si},${ii})">×</button></div>`).join('');
-      return `<div class="trip-section"><div class="trip-section-label"><span>${sec.title}</span><span class="trip-section-sub">${fmt(st)} €</span></div>${rows}<div style="display:flex;gap:12px;align-items:center"><button class="vac-add-btn" onclick="addVacItem(${ti},${si})">＋ Ajouter</button></div></div>`;
+      return `<div class="trip-section"><div class="trip-section-label"><span>${sec.title}</span><span class="trip-section-sub">${fmt(st)} €</span></div>${rows}<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="vac-add-btn" onclick="addVacItem(${ti},${si})">＋ Ajouter</button>${sec.items.length>1?`<button class="undo-btn" style="color:#fdba74" onclick="undoVacItem(${ti},${si})">↩ Annuler la dernière</button>`:''}</div></div>`;
     }).join('');
     const chips=t.sections.filter(sec=>secTotal(sec)>0).map(sec=>`<span class="chip">${sec.title.split(' ')[0]} ${fmt(secTotal(sec))} €</span>`).join('');
     return `<div class="trip-card"><div class="trip-header"><input class="trip-name-input" type="text" placeholder="🌍 Nom du voyage…" value="${t.name}" onchange="trips[${ti}].name=this.value;calc()"><span class="trip-total-badge">${fmt(total)} €</span></div>${secs}${chips?`<div class="trip-chips">${chips}</div>`:''}${trips.length>1?`<button class="del-trip-btn" onclick="delTrip(${ti})">🗑️ Supprimer ce voyage</button>`:''}</div>`;
@@ -202,6 +202,7 @@ function renderVacances(){
   document.getElementById('content').innerHTML=`<div class="vac-header-box"><h2>✈️ Planner Vacances</h2><p>Détaille chaque voyage par catégorie. Le total se calcule en temps réel.</p></div><div class="grand-total-bar"><span class="grand-total-label">💸 Total tous voyages</span><span class="grand-total-amount">${fmt(grand)} €</span></div>${cards}<button class="add-trip-btn" onclick="addTrip()">＋ Ajouter un voyage</button>`;
 }
 function addVacItem(ti,si){trips[ti].sections[si].items.push({name:'',amt:0});calc();}
+function undoVacItem(ti,si){if(trips[ti].sections[si].items.length>1){trips[ti].sections[si].items.pop();}calc();}
 function delVacItem(ti,si,ii){if(trips[ti].sections[si].items.length>1){trips[ti].sections[si].items.splice(ii,1);}calc();}
 function delTrip(ti){if(trips.length>1){trips.splice(ti,1);}calc();}
 function addTrip(){trips.push({name:'🌍 Nouveau voyage',sections:[{title:'✈️ Vols',items:[{name:'',amt:0}]},{title:'🏨 Hébergement',items:[{name:'',amt:0}]},{title:'🚗 Transport',items:[{name:'',amt:0}]},{title:'🍽️ Nourriture',items:[{name:'',amt:0}]},{title:'🎡 Activités',items:[{name:'',amt:0}]},{title:'🛍️ Divers',items:[{name:'',amt:0}]}]});calc();}
