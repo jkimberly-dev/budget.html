@@ -85,10 +85,16 @@
   .item-amount { width:88px; text-align:right; font-size:0.82rem; font-weight:600; color:#2d1b35; border:1.5px solid #f3e8ff; background:#fdf8ff; border-radius:10px; padding:5px 8px; outline:none; font-family:inherit; -webkit-appearance:none; transition:border 0.2s; }
   .item-amount:focus { border-color:#c084fc; background:#f5f0ff; }
   .item-currency { font-size:0.72rem; color:#c084fc; flex-shrink:0; font-weight:600; }
-  .add-btn { display:inline-flex; align-items:center; gap:5px; font-size:0.76rem; font-weight:700; background:none; border:none; cursor:pointer; padding:8px 0 2px; -webkit-tap-highlight-color:transparent; }
+  .add-btn { display:inline-flex; align-items:center; gap:5px; font-size:0.76rem; font-weight:700; background:none; border:none; cursor:pointer; padding:8px 0 2px; -webkit-tap-highlight-color:transparent; font-family:inherit; }
   .add-btn.needs { color:#ec4899; }
   .add-btn.wants { color:#a855f7; }
   .add-btn.future { color:#f59e0b; }
+  .del-btn { width:24px; height:24px; border-radius:50%; flex-shrink:0; background:#fff0f5; border:1.5px solid #fecdd3; color:#f43f5e; font-size:1rem; font-weight:700; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
+  .del-btn:active { background:#f43f5e; color:white; border-color:#f43f5e; }
+  .vac-del-btn { width:22px; height:22px; border-radius:50%; flex-shrink:0; background:#fff7ed; border:1.5px solid #fed7aa; color:#f97316; font-size:0.9rem; font-weight:700; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
+  .vac-del-btn:active { background:#f97316; color:white; }
+  .undo-btn { display:inline-flex; align-items:center; gap:4px; font-size:0.72rem; font-weight:600; color:#fca5a5; background:none; border:none; cursor:pointer; padding:8px 0 2px; font-family:inherit; -webkit-tap-highlight-color:transparent; }
+  .del-trip-btn { display:inline-flex; align-items:center; gap:4px; font-size:0.72rem; font-weight:600; color:#fca5a5; background:none; border:none; cursor:pointer; font-family:inherit; -webkit-tap-highlight-color:transparent; }
   .vac-header-box { background:linear-gradient(135deg,#fff7ed,#fef3c7); border-radius:18px; padding:16px 18px; margin-bottom:14px; border:1px solid #fde68a; }
   .vac-header-box h2 { font-size:0.95rem; font-weight:700; color:#c2410c; margin-bottom:4px; }
   .vac-header-box p { font-size:0.78rem; color:#9a3412; line-height:1.5; }
@@ -155,8 +161,7 @@ function calc(){render();}
 function render(){section==='budget'?renderBudget():renderVacances();}
 function renderBudget(){
   const income=getIncome(),nT=bucketTotal('needs'),wT=bucketTotal('wants'),fT=bucketTotal('future'),left=income-nT-wT-fT;
-  const nI=income*.5,wI=income*.3,fI=income*.2;
-  const nP=income>0?Math.round(nT/income*100):0,wP=income>0?Math.round(wT/income*100):0,fP=income>0?Math.round(fT/income*100):0,lP=income>0?Math.round(Math.abs(left)/income*100):0,leftNeg=left<0;
+  const nI=income*.5,wI=income*.3,fI=income*.2,nP=income>0?Math.round(nT/income*100):0,wP=income>0?Math.round(wT/income*100):0,fP=income>0?Math.round(fT/income*100):0,lP=income>0?Math.round(Math.abs(left)/income*100):0,leftNeg=left<0;
   document.getElementById('content').innerHTML=`
     <div class="summary-box"><h2>🌸 Résumé du mois</h2>
       <div class="split-grid">
@@ -175,26 +180,30 @@ function renderBudget(){
 }
 function renderBucket(key,total){
   const b=BUCKETS[key];
-  const rows=b.items.map((it,i)=>`<div class="item-row"><span class="item-dot ${key}"></span><input class="item-name" type="text" placeholder="Ajouter une dépense…" value="${it.name}" onchange="BUCKETS['${key}'].items[${i}].name=this.value"><input class="item-amount" type="text" inputmode="decimal" placeholder="0,00" value="${it.amt||''}" oninput="BUCKETS['${key}'].items[${i}].amt=parseFloat(this.value.replace(',','.'))||0;calc()"><span class="item-currency">€</span></div>`).join('');
-  return `<div class="bucket" id="bucket-${key}"><div class="bucket-header" onclick="toggleBucket('${key}')"><div class="bucket-title-wrap"><span class="bucket-icon">${b.emoji}</span><span class="bucket-title">${b.label}</span><span class="bucket-badge ${key}">${b.pct}%</span></div><div style="display:flex;align-items:center;gap:6px"><span class="bucket-total">${fmt(total)} €</span><span class="bucket-chevron">▼</span></div></div><div class="bucket-body"><div class="items-wrap">${rows}</div><button class="add-btn ${key}" onclick="addItem('${key}')">＋ Ajouter une ligne</button></div></div>`;
+  const rows=b.items.map((it,i)=>`<div class="item-row"><span class="item-dot ${key}"></span><input class="item-name" type="text" placeholder="Ajouter une dépense…" value="${it.name}" onchange="BUCKETS['${key}'].items[${i}].name=this.value"><input class="item-amount" type="text" inputmode="decimal" placeholder="0,00" value="${it.amt||''}" oninput="BUCKETS['${key}'].items[${i}].amt=parseFloat(this.value.replace(',','.'))||0;calc()"><span class="item-currency">€</span><button class="del-btn" onclick="delItem('${key}',${i})">×</button></div>`).join('');
+  return `<div class="bucket" id="bucket-${key}"><div class="bucket-header" onclick="toggleBucket('${key}')"><div class="bucket-title-wrap"><span class="bucket-icon">${b.emoji}</span><span class="bucket-title">${b.label}</span><span class="bucket-badge ${key}">${b.pct}%</span></div><div style="display:flex;align-items:center;gap:6px"><span class="bucket-total">${fmt(total)} €</span><span class="bucket-chevron">▼</span></div></div><div class="bucket-body"><div class="items-wrap">${rows}</div><div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-top:4px"><button class="add-btn ${key}" onclick="addItem('${key}')">＋ Ajouter une ligne</button>${b.items.length>1?`<button class="undo-btn" onclick="undoItem('${key}')">↩ Annuler la dernière</button>`:''}</div></div></div>`;
 }
 function toggleBucket(k){document.getElementById('bucket-'+k).classList.toggle('collapsed');}
 function addItem(k){BUCKETS[k].items.push({name:'',amt:0});calc();}
+function delItem(k,i){if(BUCKETS[k].items.length>1){BUCKETS[k].items.splice(i,1);}calc();}
+function undoItem(k){if(BUCKETS[k].items.length>1){BUCKETS[k].items.pop();}calc();}
 function renderVacances(){
   const grand=trips.reduce((s,t)=>s+tripTotal(t),0);
   const cards=trips.map((t,ti)=>{
     const total=tripTotal(t);
     const secs=t.sections.map((sec,si)=>{
       const st=secTotal(sec);
-      const rows=sec.items.map((it,ii)=>`<div class="vac-item-row"><span class="vac-dot"></span><input class="vac-item-name" type="text" placeholder="Description…" value="${it.name}" onchange="trips[${ti}].sections[${si}].items[${ii}].name=this.value"><input class="vac-item-amount" type="text" inputmode="decimal" placeholder="0,00" value="${it.amt||''}" oninput="trips[${ti}].sections[${si}].items[${ii}].amt=parseFloat(this.value.replace(',','.'))||0;calc()"><span class="vac-currency">€</span></div>`).join('');
-      return `<div class="trip-section"><div class="trip-section-label"><span>${sec.title}</span><span class="trip-section-sub">${fmt(st)} €</span></div>${rows}<button class="vac-add-btn" onclick="addVacItem(${ti},${si})">＋ Ajouter</button></div>`;
+      const rows=sec.items.map((it,ii)=>`<div class="vac-item-row"><span class="vac-dot"></span><input class="vac-item-name" type="text" placeholder="Description…" value="${it.name}" onchange="trips[${ti}].sections[${si}].items[${ii}].name=this.value"><input class="vac-item-amount" type="text" inputmode="decimal" placeholder="0,00" value="${it.amt||''}" oninput="trips[${ti}].sections[${si}].items[${ii}].amt=parseFloat(this.value.replace(',','.'))||0;calc()"><span class="vac-currency">€</span><button class="vac-del-btn" onclick="delVacItem(${ti},${si},${ii})">×</button></div>`).join('');
+      return `<div class="trip-section"><div class="trip-section-label"><span>${sec.title}</span><span class="trip-section-sub">${fmt(st)} €</span></div>${rows}<div style="display:flex;gap:12px;align-items:center"><button class="vac-add-btn" onclick="addVacItem(${ti},${si})">＋ Ajouter</button></div></div>`;
     }).join('');
     const chips=t.sections.filter(sec=>secTotal(sec)>0).map(sec=>`<span class="chip">${sec.title.split(' ')[0]} ${fmt(secTotal(sec))} €</span>`).join('');
-    return `<div class="trip-card"><div class="trip-header"><input class="trip-name-input" type="text" placeholder="🌍 Nom du voyage…" value="${t.name}" onchange="trips[${ti}].name=this.value;calc()"><span class="trip-total-badge">${fmt(total)} €</span></div>${secs}${chips?`<div class="trip-chips">${chips}</div>`:''}</div>`;
+    return `<div class="trip-card"><div class="trip-header"><input class="trip-name-input" type="text" placeholder="🌍 Nom du voyage…" value="${t.name}" onchange="trips[${ti}].name=this.value;calc()"><span class="trip-total-badge">${fmt(total)} €</span></div>${secs}${chips?`<div class="trip-chips">${chips}</div>`:''}${trips.length>1?`<button class="del-trip-btn" onclick="delTrip(${ti})">🗑️ Supprimer ce voyage</button>`:''}</div>`;
   }).join('');
   document.getElementById('content').innerHTML=`<div class="vac-header-box"><h2>✈️ Planner Vacances</h2><p>Détaille chaque voyage par catégorie. Le total se calcule en temps réel.</p></div><div class="grand-total-bar"><span class="grand-total-label">💸 Total tous voyages</span><span class="grand-total-amount">${fmt(grand)} €</span></div>${cards}<button class="add-trip-btn" onclick="addTrip()">＋ Ajouter un voyage</button>`;
 }
 function addVacItem(ti,si){trips[ti].sections[si].items.push({name:'',amt:0});calc();}
+function delVacItem(ti,si,ii){if(trips[ti].sections[si].items.length>1){trips[ti].sections[si].items.splice(ii,1);}calc();}
+function delTrip(ti){if(trips.length>1){trips.splice(ti,1);}calc();}
 function addTrip(){trips.push({name:'🌍 Nouveau voyage',sections:[{title:'✈️ Vols',items:[{name:'',amt:0}]},{title:'🏨 Hébergement',items:[{name:'',amt:0}]},{title:'🚗 Transport',items:[{name:'',amt:0}]},{title:'🍽️ Nourriture',items:[{name:'',amt:0}]},{title:'🎡 Activités',items:[{name:'',amt:0}]},{title:'🛍️ Divers',items:[{name:'',amt:0}]}]});calc();}
 render();
 </script>
