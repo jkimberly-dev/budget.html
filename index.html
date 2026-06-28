@@ -4,141 +4,151 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Budget">
+<meta name="theme-color" content="#c026d3">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23c026d3'/><text y='68' x='50' text-anchor='middle' font-size='55' font-family='system-ui'>💰</text></svg>">
 <title>Budget 50/30/20 ✨</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { -webkit-text-size-adjust: 100%; }
-  body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; background: #fdf2f8; color: #2d1b35; -webkit-font-smoothing: antialiased; }
-  .topbar { background: linear-gradient(135deg, #c026d3 0%, #9333ea 50%, #ec4899 100%); padding: max(env(safe-area-inset-top), 16px) 16px 0; position: relative; overflow: hidden; }
-  .topbar::before { content:''; position:absolute; top:-40px; right:-40px; width:150px; height:150px; border-radius:50%; background:rgba(255,255,255,0.08); }
-  .topbar::after { content:''; position:absolute; bottom:-30px; left:20px; width:100px; height:100px; border-radius:50%; background:rgba(255,255,255,0.06); }
-  .topbar-inner { padding: 10px 0 0; position:relative; z-index:1; }
-  .topbar h1 { font-size: clamp(1.15rem,5vw,1.5rem); font-weight:700; color:white; margin-bottom:2px; letter-spacing:-0.01em; }
-  .topbar p { color:rgba(255,255,255,0.7); font-size:0.78rem; margin-bottom:14px; }
-  .income-bar { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.2); border-radius:14px; padding:10px 14px; margin-bottom:14px; width:100%; backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.3); }
-  .income-bar label { color:rgba(255,255,255,0.9); font-size:0.8rem; font-weight:600; white-space:nowrap; flex-shrink:0; }
-  .income-bar input { border:none; border-radius:8px; background:rgba(255,255,255,0.25); color:white; padding:7px 10px; font-size:1.05rem; font-weight:700; flex:1; min-width:0; outline:none; text-align:center; -webkit-appearance:none; font-family:inherit; }
-  .income-bar input::placeholder { color:rgba(255,255,255,0.5); }
-  .income-bar span { color:rgba(255,255,255,0.8); font-size:0.9rem; font-weight:600; flex-shrink:0; }
-  .section-switcher { background: linear-gradient(135deg, #c026d3 0%, #9333ea 50%, #ec4899 100%); padding: 0 16px; display: flex; gap: 6px; }
-  .sec-tab { flex:1; padding:10px 6px; border-radius:12px 12px 0 0; font-size:clamp(0.72rem,3.2vw,0.85rem); font-weight:700; cursor:pointer; border:none; transition:all 0.2s; text-align:center; line-height:1.4; -webkit-tap-highlight-color:transparent; }
-  .sec-tab.budget { background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.75); }
-  .sec-tab.budget.active { background:#fdf2f8; color:#9333ea; }
-  .sec-tab.vacances { background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.75); }
-  .sec-tab.vacances.active { background:#fff8f0; color:#f97316; }
-  .content { padding:16px 16px max(env(safe-area-inset-bottom),28px); }
-  .content.budget-bg { background:#fdf2f8; }
-  .content.vacances-bg { background:#fff8f0; }
-  .month-selector { background:white; border-radius:16px; padding:14px 16px; box-shadow:0 4px 16px rgba(192,38,211,0.08); margin-bottom:14px; border:1px solid rgba(192,38,211,0.06); }
-  .month-selector-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-  .month-selector-title { font-size:0.85rem; font-weight:700; color:#2d1b35; }
-  .month-current-badge { background:linear-gradient(135deg,#c026d3,#ec4899); color:white; border-radius:20px; font-size:0.75rem; font-weight:700; padding:4px 12px; }
-  .month-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
-  .month-btn { padding:8px 4px; border-radius:10px; border:1.5px solid #f3e8ff; background:#fdf8ff; font-size:0.75rem; font-weight:600; color:#7c3aed; cursor:pointer; text-align:center; transition:all 0.15s; font-family:inherit; -webkit-tap-highlight-color:transparent; position:relative; }
-  .month-btn.active { background:linear-gradient(135deg,#c026d3,#ec4899); color:white; border-color:transparent; box-shadow:0 2px 8px rgba(192,38,211,0.3); }
-  .month-btn.has-data::after { content:''; position:absolute; top:4px; right:4px; width:6px; height:6px; border-radius:50%; background:#10b981; }
-  .month-btn.active.has-data::after { background:rgba(255,255,255,0.7); }
-  .month-year { font-size:0.6rem; opacity:0.7; display:block; margin-top:1px; }
-  .summary-box { background:white; border-radius:20px; padding:18px; box-shadow:0 4px 20px rgba(192,38,211,0.1); margin-bottom:14px; border:1px solid rgba(192,38,211,0.08); }
-  .summary-box h2 { font-size:0.88rem; font-weight:700; color:#9333ea; margin-bottom:14px; }
-  .split-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px; }
-  .split-card { border-radius:14px; padding:12px 14px; display:flex; flex-direction:column; gap:4px; }
-  .split-card.needs { background:linear-gradient(135deg,#fce7f3,#fbcfe8); border:1px solid #f9a8d4; }
-  .split-card.wants { background:linear-gradient(135deg,#f3e8ff,#e9d5ff); border:1px solid #d8b4fe; }
-  .split-card.future { background:linear-gradient(135deg,#fef3c7,#fde68a); border:1px solid #fcd34d; }
-  .split-card.leftover { background:linear-gradient(135deg,#ecfdf5,#d1fae5); border:1px solid #6ee7b7; }
-  .split-card.leftover.neg { background:linear-gradient(135deg,#fff1f2,#ffe4e6); border:1px solid #fecdd3; }
-  .split-label { font-size:0.63rem; color:rgba(45,27,53,0.5); text-transform:uppercase; letter-spacing:0.06em; font-weight:600; }
-  .split-amount { font-size:1.05rem; font-weight:700; color:#2d1b35; }
-  .split-pct { font-size:0.7rem; font-weight:700; }
-  .split-card.needs .split-pct { color:#db2777; }
-  .split-card.wants .split-pct { color:#7c3aed; }
-  .split-card.future .split-pct { color:#d97706; }
-  .split-card.leftover .split-pct { color:#059669; }
-  .split-card.leftover.neg .split-pct { color:#e11d48; }
-  .split-ideal { font-size:0.63rem; color:rgba(45,27,53,0.4); }
-  .progress-section { display:flex; flex-direction:column; gap:10px; }
-  .prog-row { display:flex; flex-direction:column; gap:5px; }
-  .prog-header { display:flex; justify-content:space-between; align-items:center; }
-  .prog-label { font-size:0.75rem; font-weight:600; color:#2d1b35; }
-  .prog-vals { font-size:0.7rem; color:#a78bca; }
-  .prog-track { height:8px; background:#f3e8ff; border-radius:20px; overflow:hidden; }
-  .prog-fill { height:100%; border-radius:20px; transition:width 0.5s ease; }
-  .prog-fill.needs { background:linear-gradient(90deg,#ec4899,#f9a8d4); }
-  .prog-fill.wants { background:linear-gradient(90deg,#a855f7,#c084fc); }
-  .prog-fill.future { background:linear-gradient(90deg,#f59e0b,#fcd34d); }
-  .prog-fill.over { background:linear-gradient(90deg,#f43f5e,#fb7185); }
-  .bucket { background:white; border-radius:18px; padding:16px; box-shadow:0 4px 16px rgba(192,38,211,0.08); margin-bottom:12px; overflow:hidden; border:1px solid rgba(192,38,211,0.06); }
-  .bucket-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .bucket-title-wrap { display:flex; align-items:center; gap:8px; }
-  .bucket-icon { font-size:1.3rem; }
-  .bucket-title { font-size:0.95rem; font-weight:700; color:#2d1b35; }
-  .bucket-badge { font-size:0.65rem; font-weight:700; padding:3px 9px; border-radius:20px; color:white; }
-  .bucket-badge.needs { background:linear-gradient(135deg,#ec4899,#db2777); }
-  .bucket-badge.wants { background:linear-gradient(135deg,#a855f7,#7c3aed); }
-  .bucket-badge.future { background:linear-gradient(135deg,#f59e0b,#d97706); }
-  .bucket-total { font-size:0.9rem; font-weight:700; color:#9333ea; }
-  .bucket-chevron { color:#d8b4fe; font-size:0.75rem; transition:transform 0.2s; margin-left:6px; }
-  .bucket.collapsed .bucket-chevron { transform:rotate(-90deg); }
-  .bucket.collapsed .bucket-body { display:none; }
-  .items-wrap { border-top:1px solid #fdf2f8; padding-top:8px; }
-  .item-row { display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid #fdf2f8; }
-  .item-row:last-child { border-bottom:none; }
-  .item-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-  .item-dot.needs { background:#f9a8d4; }
-  .item-dot.wants { background:#d8b4fe; }
-  .item-dot.future { background:#fcd34d; }
-  .item-name { flex:1; font-size:0.8rem; color:#4a3558; border:none; background:transparent; outline:none; font-family:inherit; min-width:0; }
-  .item-name::placeholder { color:#d8b4fe; }
-  .item-amount { width:88px; text-align:right; font-size:0.82rem; font-weight:600; color:#2d1b35; border:1.5px solid #f3e8ff; background:#fdf8ff; border-radius:10px; padding:5px 8px; outline:none; font-family:inherit; -webkit-appearance:none; transition:border 0.2s; }
-  .item-amount:focus { border-color:#c084fc; background:#f5f0ff; }
-  .item-currency { font-size:0.72rem; color:#c084fc; flex-shrink:0; font-weight:600; }
-  .add-btn { display:inline-flex; align-items:center; gap:5px; font-size:0.76rem; font-weight:700; background:none; border:none; cursor:pointer; padding:8px 0 2px; -webkit-tap-highlight-color:transparent; font-family:inherit; }
-  .add-btn.needs { color:#ec4899; }
-  .add-btn.wants { color:#a855f7; }
-  .add-btn.future { color:#f59e0b; }
-  .del-btn { width:24px; height:24px; border-radius:50%; flex-shrink:0; background:#fff0f5; border:1.5px solid #fecdd3; color:#f43f5e; font-size:1rem; font-weight:700; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .del-btn:active { background:#f43f5e; color:white; }
-  .undo-btn { display:inline-flex; align-items:center; gap:4px; font-size:0.72rem; font-weight:600; color:#fca5a5; background:none; border:none; cursor:pointer; padding:8px 0 2px; font-family:inherit; -webkit-tap-highlight-color:transparent; }
-  .vac-header-box { background:linear-gradient(135deg,#fff7ed,#fef3c7); border-radius:18px; padding:16px 18px; margin-bottom:14px; border:1px solid #fde68a; }
-  .vac-header-box h2 { font-size:0.95rem; font-weight:700; color:#c2410c; margin-bottom:4px; }
-  .vac-header-box p { font-size:0.78rem; color:#9a3412; line-height:1.5; }
-  .grand-total-bar { background:linear-gradient(135deg,#f97316,#fb923c); border-radius:14px; padding:14px 18px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 16px rgba(249,115,22,0.25); }
-  .grand-total-label { font-size:0.8rem; color:rgba(255,255,255,0.85); font-weight:600; }
-  .grand-total-amount { font-size:1.25rem; font-weight:700; color:white; }
-  .trip-card { background:white; border-radius:18px; padding:16px; box-shadow:0 4px 16px rgba(249,115,22,0.1); margin-bottom:12px; border:1px solid rgba(249,115,22,0.08); }
-  .trip-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:10px; }
-  .trip-name-input { font-size:0.95rem; font-weight:700; color:#2d1b35; border:none; background:transparent; outline:none; font-family:inherit; flex:1; min-width:0; }
-  .trip-name-input::placeholder { color:#fed7aa; font-weight:400; }
-  .trip-total-badge { background:linear-gradient(135deg,#f97316,#ea580c); color:white; border-radius:20px; font-size:0.78rem; font-weight:700; padding:5px 12px; flex-shrink:0; }
-  .trip-section { margin-bottom:12px; }
-  .trip-section-label { display:flex; align-items:center; justify-content:space-between; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#c2410c; margin-bottom:6px; padding:5px 10px; background:linear-gradient(135deg,#fff7ed,#fef3c7); border-radius:8px; border-left:3px solid #f97316; }
-  .trip-section-sub { font-size:0.7rem; font-weight:700; color:#f97316; }
-  .vac-item-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #fff7ed; }
-  .vac-item-row:last-child { border-bottom:none; }
-  .vac-dot { width:6px; height:6px; border-radius:50%; background:#fed7aa; flex-shrink:0; }
-  .vac-item-name { flex:1; font-size:0.8rem; color:#4a3558; border:none; background:transparent; outline:none; font-family:inherit; min-width:0; }
-  .vac-item-name::placeholder { color:#fed7aa; }
-  .vac-item-amount { width:88px; text-align:right; font-size:0.82rem; font-weight:600; color:#c2410c; border:1.5px solid #fde68a; background:#fffbeb; border-radius:10px; padding:5px 8px; outline:none; font-family:inherit; -webkit-appearance:none; transition:border 0.2s; }
-  .vac-item-amount:focus { border-color:#f97316; background:#fff7ed; }
-  .vac-currency { font-size:0.72rem; color:#fb923c; flex-shrink:0; font-weight:600; }
-  .vac-del-btn { width:22px; height:22px; border-radius:50%; flex-shrink:0; background:#fff7ed; border:1.5px solid #fed7aa; color:#f97316; font-size:0.9rem; font-weight:700; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-  .vac-del-btn:active { background:#f97316; color:white; }
-  .vac-add-btn { display:inline-flex; align-items:center; gap:5px; color:#f97316; font-size:0.75rem; font-weight:700; background:none; border:none; cursor:pointer; padding:6px 0 2px; -webkit-tap-highlight-color:transparent; font-family:inherit; }
-  .del-trip-btn { display:inline-flex; align-items:center; gap:4px; font-size:0.72rem; font-weight:600; color:#fca5a5; background:none; border:none; cursor:pointer; font-family:inherit; -webkit-tap-highlight-color:transparent; }
-  .trip-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; padding-top:10px; border-top:1px solid #fff7ed; }
-  .chip { background:#fff7ed; border:1px solid #fed7aa; border-radius:20px; font-size:0.7rem; padding:4px 10px; color:#c2410c; font-weight:600; }
-  .add-trip-btn { width:100%; padding:14px; border-radius:14px; background:white; border:2px dashed #fde68a; color:#f97316; font-size:0.85rem; font-weight:700; cursor:pointer; margin-bottom:12px; font-family:inherit; -webkit-tap-highlight-color:transparent; }
-  @media(min-width:520px){ .topbar,.section-switcher,.content{padding-left:20px;padding-right:20px;} .split-grid{grid-template-columns:repeat(4,1fr);} }
-  @media(min-width:768px){ .topbar,.section-switcher,.content{padding-left:28px;padding-right:28px;} }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;}
+  body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:#fdf2f8;color:#2d1b35;-webkit-font-smoothing:antialiased;}
+  .topbar{background:linear-gradient(135deg,#c026d3 0%,#9333ea 50%,#ec4899 100%);padding:max(env(safe-area-inset-top),16px) 16px 0;position:relative;overflow:hidden;}
+  .topbar::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,0.08);}
+  .topbar::after{content:'';position:absolute;bottom:-30px;left:20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.06);}
+  .topbar-inner{padding:10px 0 0;position:relative;z-index:1;}
+  .topbar h1{font-size:clamp(1.15rem,5vw,1.5rem);font-weight:700;color:white;margin-bottom:2px;letter-spacing:-0.01em;}
+  .topbar p{color:rgba(255,255,255,0.7);font-size:0.78rem;margin-bottom:14px;}
+  .income-bar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.2);border-radius:14px;padding:10px 14px;margin-bottom:14px;width:100%;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.3);}
+  .income-bar label{color:rgba(255,255,255,0.9);font-size:0.8rem;font-weight:600;white-space:nowrap;flex-shrink:0;}
+  .income-bar input{border:none;border-radius:8px;background:rgba(255,255,255,0.25);color:white;padding:7px 10px;font-size:1.05rem;font-weight:700;flex:1;min-width:0;outline:none;text-align:center;-webkit-appearance:none;font-family:inherit;}
+  .income-bar span{color:rgba(255,255,255,0.8);font-size:0.9rem;font-weight:600;flex-shrink:0;}
+  .section-switcher{background:linear-gradient(135deg,#c026d3 0%,#9333ea 50%,#ec4899 100%);padding:0 16px;display:flex;gap:6px;}
+  .sec-tab{flex:1;padding:10px 6px;border-radius:12px 12px 0 0;font-size:clamp(0.72rem,3.2vw,0.85rem);font-weight:700;cursor:pointer;border:none;transition:all 0.2s;text-align:center;line-height:1.4;-webkit-tap-highlight-color:transparent;}
+  .sec-tab.budget{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.75);}
+  .sec-tab.budget.active{background:#fdf2f8;color:#9333ea;}
+  .sec-tab.vacances{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.75);}
+  .sec-tab.vacances.active{background:#fff8f0;color:#f97316;}
+  .content{padding:16px 16px max(env(safe-area-inset-bottom),28px);}
+  .content.budget-bg{background:#fdf2f8;}
+  .content.vacances-bg{background:#fff8f0;}
+  .month-selector{background:white;border-radius:16px;padding:14px 16px;box-shadow:0 4px 16px rgba(192,38,211,0.08);margin-bottom:14px;border:1px solid rgba(192,38,211,0.06);}
+  .month-selector-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .month-selector-title{font-size:0.85rem;font-weight:700;color:#2d1b35;}
+  .month-current-badge{background:linear-gradient(135deg,#c026d3,#ec4899);color:white;border-radius:20px;font-size:0.75rem;font-weight:700;padding:4px 12px;}
+  .month-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+  .month-btn{padding:8px 4px;border-radius:10px;border:1.5px solid #f3e8ff;background:#fdf8ff;font-size:0.75rem;font-weight:600;color:#7c3aed;cursor:pointer;text-align:center;transition:all 0.15s;font-family:inherit;-webkit-tap-highlight-color:transparent;position:relative;}
+  .month-btn.active{background:linear-gradient(135deg,#c026d3,#ec4899);color:white;border-color:transparent;box-shadow:0 2px 8px rgba(192,38,211,0.3);}
+  .month-btn.has-data::after{content:'';position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:#10b981;}
+  .month-btn.active.has-data::after{background:rgba(255,255,255,0.7);}
+  .month-year{font-size:0.6rem;opacity:0.7;display:block;margin-top:1px;}
+  .summary-box{background:white;border-radius:20px;padding:18px;box-shadow:0 4px 20px rgba(192,38,211,0.1);margin-bottom:14px;border:1px solid rgba(192,38,211,0.08);}
+  .summary-box h2{font-size:0.88rem;font-weight:700;color:#9333ea;margin-bottom:14px;}
+  .split-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+  .split-card{border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;}
+  .split-card.needs{background:linear-gradient(135deg,#fce7f3,#fbcfe8);border:1px solid #f9a8d4;}
+  .split-card.wants{background:linear-gradient(135deg,#f3e8ff,#e9d5ff);border:1px solid #d8b4fe;}
+  .split-card.future{background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fcd34d;}
+  .split-card.leftover{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1px solid #6ee7b7;}
+  .split-card.leftover.neg{background:linear-gradient(135deg,#fff1f2,#ffe4e6);border:1px solid #fecdd3;}
+  .split-label{font-size:0.63rem;color:rgba(45,27,53,0.5);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;}
+  .split-amount{font-size:1.05rem;font-weight:700;color:#2d1b35;}
+  .split-pct{font-size:0.7rem;font-weight:700;}
+  .split-card.needs .split-pct{color:#db2777;}
+  .split-card.wants .split-pct{color:#7c3aed;}
+  .split-card.future .split-pct{color:#d97706;}
+  .split-card.leftover .split-pct{color:#059669;}
+  .split-card.leftover.neg .split-pct{color:#e11d48;}
+  .split-ideal{font-size:0.63rem;color:rgba(45,27,53,0.4);}
+  .progress-section{display:flex;flex-direction:column;gap:10px;}
+  .prog-row{display:flex;flex-direction:column;gap:5px;}
+  .prog-header{display:flex;justify-content:space-between;align-items:center;}
+  .prog-label{font-size:0.75rem;font-weight:600;color:#2d1b35;}
+  .prog-vals{font-size:0.7rem;color:#a78bca;}
+  .prog-track{height:8px;background:#f3e8ff;border-radius:20px;overflow:hidden;}
+  .prog-fill{height:100%;border-radius:20px;transition:width 0.5s ease;}
+  .prog-fill.needs{background:linear-gradient(90deg,#ec4899,#f9a8d4);}
+  .prog-fill.wants{background:linear-gradient(90deg,#a855f7,#c084fc);}
+  .prog-fill.future{background:linear-gradient(90deg,#f59e0b,#fcd34d);}
+  .prog-fill.over{background:linear-gradient(90deg,#f43f5e,#fb7185);}
+  .bucket{background:white;border-radius:18px;padding:16px;box-shadow:0 4px 16px rgba(192,38,211,0.08);margin-bottom:12px;overflow:hidden;border:1px solid rgba(192,38,211,0.06);}
+  .bucket-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .bucket-title-wrap{display:flex;align-items:center;gap:8px;}
+  .bucket-icon{font-size:1.3rem;}
+  .bucket-title{font-size:0.95rem;font-weight:700;color:#2d1b35;}
+  .bucket-badge{font-size:0.65rem;font-weight:700;padding:3px 9px;border-radius:20px;color:white;}
+  .bucket-badge.needs{background:linear-gradient(135deg,#ec4899,#db2777);}
+  .bucket-badge.wants{background:linear-gradient(135deg,#a855f7,#7c3aed);}
+  .bucket-badge.future{background:linear-gradient(135deg,#f59e0b,#d97706);}
+  .bucket-total{font-size:0.9rem;font-weight:700;color:#9333ea;}
+  .bucket-chevron{color:#d8b4fe;font-size:0.75rem;transition:transform 0.2s;margin-left:6px;}
+  .bucket.collapsed .bucket-chevron{transform:rotate(-90deg);}
+  .bucket.collapsed .bucket-body{display:none;}
+  .items-wrap{border-top:1px solid #fdf2f8;padding-top:8px;}
+  .item-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #fdf2f8;}
+  .item-row:last-child{border-bottom:none;}
+  .item-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .item-dot.needs{background:#f9a8d4;}
+  .item-dot.wants{background:#d8b4fe;}
+  .item-dot.future{background:#fcd34d;}
+  .item-name{flex:1;font-size:0.8rem;color:#4a3558;border:none;background:transparent;outline:none;font-family:inherit;min-width:0;}
+  .item-name::placeholder{color:#d8b4fe;}
+  .item-amount{width:88px;text-align:right;font-size:0.82rem;font-weight:600;color:#2d1b35;border:1.5px solid #f3e8ff;background:#fdf8ff;border-radius:10px;padding:5px 8px;outline:none;font-family:inherit;-webkit-appearance:none;transition:border 0.2s;}
+  .item-amount:focus{border-color:#c084fc;background:#f5f0ff;}
+  .item-currency{font-size:0.72rem;color:#c084fc;flex-shrink:0;font-weight:600;}
+  .add-btn{display:inline-flex;align-items:center;gap:5px;font-size:0.76rem;font-weight:700;background:none;border:none;cursor:pointer;padding:8px 0 2px;-webkit-tap-highlight-color:transparent;font-family:inherit;}
+  .add-btn.needs{color:#ec4899;}
+  .add-btn.wants{color:#a855f7;}
+  .add-btn.future{color:#f59e0b;}
+  .del-btn{width:24px;height:24px;border-radius:50%;flex-shrink:0;background:#fff0f5;border:1.5px solid #fecdd3;color:#f43f5e;font-size:1rem;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .del-btn:active{background:#f43f5e;color:white;}
+  .undo-btn{display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:600;color:#fca5a5;background:none;border:none;cursor:pointer;padding:8px 0 2px;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+  .vac-header-box{background:linear-gradient(135deg,#fff7ed,#fef3c7);border-radius:18px;padding:16px 18px;margin-bottom:14px;border:1px solid #fde68a;}
+  .vac-header-box h2{font-size:0.95rem;font-weight:700;color:#c2410c;margin-bottom:4px;}
+  .vac-header-box p{font-size:0.78rem;color:#9a3412;line-height:1.5;}
+  .grand-total-bar{background:linear-gradient(135deg,#f97316,#fb923c);border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 16px rgba(249,115,22,0.25);}
+  .grand-total-label{font-size:0.8rem;color:rgba(255,255,255,0.85);font-weight:600;}
+  .grand-total-amount{font-size:1.25rem;font-weight:700;color:white;}
+  .trip-card{background:white;border-radius:18px;padding:16px;box-shadow:0 4px 16px rgba(249,115,22,0.1);margin-bottom:12px;border:1px solid rgba(249,115,22,0.08);}
+  .trip-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;}
+  .trip-name-input{font-size:0.95rem;font-weight:700;color:#2d1b35;border:none;background:transparent;outline:none;font-family:inherit;flex:1;min-width:0;}
+  .trip-name-input::placeholder{color:#fed7aa;font-weight:400;}
+  .trip-total-badge{background:linear-gradient(135deg,#f97316,#ea580c);color:white;border-radius:20px;font-size:0.78rem;font-weight:700;padding:5px 12px;flex-shrink:0;}
+  .trip-section{margin-bottom:12px;}
+  .trip-section-label{display:flex;align-items:center;justify-content:space-between;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#c2410c;margin-bottom:6px;padding:5px 10px;background:linear-gradient(135deg,#fff7ed,#fef3c7);border-radius:8px;border-left:3px solid #f97316;}
+  .trip-section-sub{font-size:0.7rem;font-weight:700;color:#f97316;}
+  .vac-item-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #fff7ed;}
+  .vac-item-row:last-child{border-bottom:none;}
+  .vac-dot{width:6px;height:6px;border-radius:50%;background:#fed7aa;flex-shrink:0;}
+  .vac-item-name{flex:1;font-size:0.8rem;color:#4a3558;border:none;background:transparent;outline:none;font-family:inherit;min-width:0;}
+  .vac-item-name::placeholder{color:#fed7aa;}
+  .vac-item-amount{width:88px;text-align:right;font-size:0.82rem;font-weight:600;color:#c2410c;border:1.5px solid #fde68a;background:#fffbeb;border-radius:10px;padding:5px 8px;outline:none;font-family:inherit;-webkit-appearance:none;transition:border 0.2s;}
+  .vac-item-amount:focus{border-color:#f97316;background:#fff7ed;}
+  .vac-currency{font-size:0.72rem;color:#fb923c;flex-shrink:0;font-weight:600;}
+  .vac-del-btn{width:22px;height:22px;border-radius:50%;flex-shrink:0;background:#fff7ed;border:1.5px solid #fed7aa;color:#f97316;font-size:0.9rem;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .vac-del-btn:active{background:#f97316;color:white;}
+  .vac-add-btn{display:inline-flex;align-items:center;gap:5px;color:#f97316;font-size:0.75rem;font-weight:700;background:none;border:none;cursor:pointer;padding:6px 0 2px;-webkit-tap-highlight-color:transparent;font-family:inherit;}
+  .del-trip-btn{display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:600;color:#fca5a5;background:none;border:none;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+  .trip-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #fff7ed;}
+  .chip{background:#fff7ed;border:1px solid #fed7aa;border-radius:20px;font-size:0.7rem;padding:4px 10px;color:#c2410c;font-weight:600;}
+  .add-trip-btn{width:100%;padding:14px;border-radius:14px;background:white;border:2px dashed #fde68a;color:#f97316;font-size:0.85rem;font-weight:700;cursor:pointer;margin-bottom:12px;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+  /* PWA NAV */
+  .pwa-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(253,242,248,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(192,38,211,0.15);padding:8px 0 max(env(safe-area-inset-bottom),8px);z-index:1000;justify-content:space-around;align-items:center;}
+  .pwa-nav.visible{display:flex;}
+  .pwa-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:#9333ea;font-size:0.6rem;font-weight:600;cursor:pointer;padding:6px 20px;-webkit-tap-highlight-color:transparent;font-family:inherit;}
+  .pwa-nav-btn .nav-icon{font-size:1.4rem;}
+  .pwa-nav-btn.active{color:#c026d3;}
+  body.is-pwa .content{padding-bottom:calc(max(env(safe-area-inset-bottom),8px) + 62px);}
+  @media(min-width:520px){.topbar,.section-switcher,.content{padding-left:20px;padding-right:20px;}.split-grid{grid-template-columns:repeat(4,1fr);}}
+  @media(min-width:768px){.topbar,.section-switcher,.content{padding-left:28px;padding-right:28px;}}
 </style>
 </head>
 <body>
 <div class="topbar">
   <div class="topbar-inner">
     <h1>✨ Budget 50/30/20</h1>
-    <p>Needs · Wants · Future Me · Vacances &nbsp;·&nbsp; <button onclick="resetData()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;border-radius:20px;font-size:0.68rem;padding:2px 8px;cursor:pointer;font-family:inherit;">🔄 Réinitialiser</button></p>
+    <p>Needs &middot; Wants &middot; Future Me &middot; Vacances &nbsp;&middot;&nbsp; <button onclick="resetData()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;border-radius:20px;font-size:0.68rem;padding:2px 8px;cursor:pointer;font-family:inherit;">🔄 Réinitialiser</button></p>
     <div class="income-bar">
       <label>💸 Revenu net</label>
       <input type="text" id="income" value="2800" inputmode="decimal" placeholder="0,00" oninput="saveIncomeForMonth(this.value)" onchange="calc()">
@@ -151,6 +161,11 @@
   <button class="sec-tab vacances" onclick="setSection('vacances')">✈️ Planner<br>Vacances</button>
 </div>
 <div class="content budget-bg" id="content"></div>
+<div class="pwa-nav" id="pwaNav">
+  <button class="pwa-nav-btn active" id="navBudget" onclick="setSection('budget');updateNav('budget')"><span class="nav-icon">💳</span>Budget</button>
+  <button class="pwa-nav-btn" id="navVacances" onclick="setSection('vacances');updateNav('vacances')"><span class="nav-icon">✈️</span>Vacances</button>
+  <button class="pwa-nav-btn" onclick="window.location.reload()"><span class="nav-icon">🔄</span>Refresh</button>
+</div>
 <script>
 let section='budget',currentMonth='2026-07',allMonths={};
 const MONTHS=[{key:'2026-07',label:'Juil',year:'2026'},{key:'2026-08',label:'Août',year:'2026'},{key:'2026-09',label:'Sept',year:'2026'},{key:'2026-10',label:'Oct',year:'2026'},{key:'2026-11',label:'Nov',year:'2026'},{key:'2026-12',label:'Déc',year:'2026'},{key:'2027-01',label:'Janv',year:'2027'},{key:'2027-02',label:'Févr',year:'2027'},{key:'2027-03',label:'Mars',year:'2027'},{key:'2027-04',label:'Avr',year:'2027'},{key:'2027-05',label:'Mai',year:'2027'},{key:'2027-06',label:'Juin',year:'2027'}];
@@ -168,54 +183,14 @@ function setMonth(mk){getMonthData(currentMonth).income=document.getElementById(
 function setSection(s){getMonthData(currentMonth).income=document.getElementById('income').value;section=s;document.querySelectorAll('.sec-tab').forEach(b=>b.classList.remove('active'));document.querySelector('.sec-tab.'+s).classList.add('active');document.getElementById('content').className='content '+(s==='budget'?'budget-bg':'vacances-bg');render();saveData();}
 function calc(){render();}
 function render(){section==='budget'?renderBudget():renderVacances();}
-function renderMonthSelector(){
-  const cur=MONTHS.find(m=>m.key===currentMonth);
-  const btns=MONTHS.map(m=>{const d=allMonths[m.key];const hasData=d&&Object.values(d.buckets).some(b=>b.items.some(it=>parseFloat(it.amt)>0));return `<button class="month-btn ${m.key===currentMonth?'active':''} ${hasData?'has-data':''}" onclick="setMonth('${m.key}')">${m.label}<span class="month-year">${m.year}</span></button>`;}).join('');
-  return `<div class="month-selector"><div class="month-selector-header"><span class="month-selector-title">📅 Mois</span><span class="month-current-badge">${cur?.label} ${cur?.year}</span></div><div class="month-grid">${btns}</div></div>`;
-}
-function renderBudget(){
-  const income=getIncome(),nT=bucketTotal('needs'),wT=bucketTotal('wants'),fT=bucketTotal('future'),left=income-nT-wT-fT;
-  const nI=income*.5,wI=income*.3,fI=income*.2,nP=income>0?Math.round(nT/income*100):0,wP=income>0?Math.round(wT/income*100):0,fP=income>0?Math.round(fT/income*100):0,lP=income>0?Math.round(Math.abs(left)/income*100):0,leftNeg=left<0;
-  const cur=MONTHS.find(m=>m.key===currentMonth);
-  document.getElementById('content').innerHTML=renderMonthSelector()+`
-    <div class="summary-box"><h2>🌸 Résumé — ${cur?.label} ${cur?.year}</h2>
-      <div class="split-grid">
-        <div class="split-card needs"><span class="split-label">Needs 50%</span><span class="split-amount">${fmt(nT)} €</span><span class="split-pct">${nP}% utilisé</span><span class="split-ideal">Idéal : ${fmt(nI)} €</span></div>
-        <div class="split-card wants"><span class="split-label">Wants 30%</span><span class="split-amount">${fmt(wT)} €</span><span class="split-pct">${wP}% utilisé</span><span class="split-ideal">Idéal : ${fmt(wI)} €</span></div>
-        <div class="split-card future"><span class="split-label">Future Me 20%</span><span class="split-amount">${fmt(fT)} €</span><span class="split-pct">${fP}% utilisé</span><span class="split-ideal">Idéal : ${fmt(fI)} €</span></div>
-        <div class="split-card leftover ${leftNeg?'neg':''}"><span class="split-label">Restant</span><span class="split-amount">${leftNeg?'-':'+'} ${fmt(Math.abs(left))} €</span><span class="split-pct">${leftNeg?'-':'+'} ${lP}%</span><span class="split-ideal">Objectif : 0 €</span></div>
-      </div>
-      <div class="progress-section">
-        <div class="prog-row"><div class="prog-header"><span class="prog-label">🏠 Needs</span><span class="prog-vals">${fmt(nT)} / ${fmt(nI)} €</span></div><div class="prog-track"><div class="prog-fill ${nT>nI?'over':'needs'}" style="width:${Math.min(100,income>0?nT/nI*100:0)}%"></div></div></div>
-        <div class="prog-row"><div class="prog-header"><span class="prog-label">🛍️ Wants</span><span class="prog-vals">${fmt(wT)} / ${fmt(wI)} €</span></div><div class="prog-track"><div class="prog-fill ${wT>wI?'over':'wants'}" style="width:${Math.min(100,income>0?wT/wI*100:0)}%"></div></div></div>
-        <div class="prog-row"><div class="prog-header"><span class="prog-label">🌸 Future Me</span><span class="prog-vals">${fmt(fT)} / ${fmt(fI)} €</span></div><div class="prog-track"><div class="prog-fill ${fT>fI?'over':'future'}" style="width:${Math.min(100,income>0?fT/fI*100:0)}%"></div></div></div>
-      </div>
-    </div>
-    ${renderBucket('needs',nT)}${renderBucket('wants',wT)}${renderBucket('future',fT)}`;
-}
-function renderBucket(key,total){
-  const b=B()[key];
-  const rows=b.items.map((it,i)=>`<div class="item-row"><span class="item-dot ${key}"></span><input class="item-name" type="text" placeholder="Ajouter une dépense…" value="${it.name}" onchange="B()['${key}'].items[${i}].name=this.value;saveData()"><input class="item-amount" type="text" inputmode="decimal" placeholder="0,00" value="${it.amt||''}" onchange="B()['${key}'].items[${i}].amt=parseFloat(this.value.replace(',','.'))||0;calc()" oninput="B()['${key}'].items[${i}].amt=parseFloat(this.value.replace(',','.'))||0;saveData()"><span class="item-currency">€</span><button class="del-btn" onclick="delItem('${key}',${i})">×</button></div>`).join('');
-  return `<div class="bucket" id="bucket-${key}"><div class="bucket-header" onclick="toggleBucket('${key}')"><div class="bucket-title-wrap"><span class="bucket-icon">${b.emoji}</span><span class="bucket-title">${b.label}</span><span class="bucket-badge ${key}">${b.pct}%</span></div><div style="display:flex;align-items:center;gap:6px"><span class="bucket-total">${fmt(total)} €</span><span class="bucket-chevron">▼</span></div></div><div class="bucket-body"><div class="items-wrap">${rows}</div><div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-top:4px"><button class="add-btn ${key}" onclick="addItem('${key}')">＋ Ajouter une ligne</button>${b.items.length>1?`<button class="undo-btn" onclick="undoItem('${key}')">↩ Annuler la dernière</button>`:''}</div></div></div>`;
-}
+function renderMonthSelector(){const cur=MONTHS.find(m=>m.key===currentMonth);const btns=MONTHS.map(m=>{const d=allMonths[m.key];const hasData=d&&Object.values(d.buckets).some(b=>b.items.some(it=>parseFloat(it.amt)>0));return`<button class="month-btn ${m.key===currentMonth?'active':''} ${hasData?'has-data':''}" onclick="setMonth('${m.key}')">${m.label}<span class="month-year">${m.year}</span></button>`;}).join('');return`<div class="month-selector"><div class="month-selector-header"><span class="month-selector-title">📅 Mois</span><span class="month-current-badge">${cur?.label} ${cur?.year}</span></div><div class="month-grid">${btns}</div></div>`;}
+function renderBudget(){const income=getIncome(),nT=bucketTotal('needs'),wT=bucketTotal('wants'),fT=bucketTotal('future'),left=income-nT-wT-fT,nI=income*.5,wI=income*.3,fI=income*.2,nP=income>0?Math.round(nT/income*100):0,wP=income>0?Math.round(wT/income*100):0,fP=income>0?Math.round(fT/income*100):0,lP=income>0?Math.round(Math.abs(left)/income*100):0,leftNeg=left<0,cur=MONTHS.find(m=>m.key===currentMonth);document.getElementById('content').innerHTML=renderMonthSelector()+`<div class="summary-box"><h2>🌸 Résumé — ${cur?.label} ${cur?.year}</h2><div class="split-grid"><div class="split-card needs"><span class="split-label">Needs 50%</span><span class="split-amount">${fmt(nT)} €</span><span class="split-pct">${nP}% utilisé</span><span class="split-ideal">Idéal : ${fmt(nI)} €</span></div><div class="split-card wants"><span class="split-label">Wants 30%</span><span class="split-amount">${fmt(wT)} €</span><span class="split-pct">${wP}% utilisé</span><span class="split-ideal">Idéal : ${fmt(wI)} €</span></div><div class="split-card future"><span class="split-label">Future Me 20%</span><span class="split-amount">${fmt(fT)} €</span><span class="split-pct">${fP}% utilisé</span><span class="split-ideal">Idéal : ${fmt(fI)} €</span></div><div class="split-card leftover ${leftNeg?'neg':''}"><span class="split-label">Restant</span><span class="split-amount">${leftNeg?'-':'+'} ${fmt(Math.abs(left))} €</span><span class="split-pct">${leftNeg?'-':'+'} ${lP}%</span><span class="split-ideal">Objectif : 0 €</span></div></div><div class="progress-section"><div class="prog-row"><div class="prog-header"><span class="prog-label">🏠 Needs</span><span class="prog-vals">${fmt(nT)} / ${fmt(nI)} €</span></div><div class="prog-track"><div class="prog-fill ${nT>nI?'over':'needs'}" style="width:${Math.min(100,income>0?nT/nI*100:0)}%"></div></div></div><div class="prog-row"><div class="prog-header"><span class="prog-label">🛍️ Wants</span><span class="prog-vals">${fmt(wT)} / ${fmt(wI)} €</span></div><div class="prog-track"><div class="prog-fill ${wT>wI?'over':'wants'}" style="width:${Math.min(100,income>0?wT/wI*100:0)}%"></div></div></div><div class="prog-row"><div class="prog-header"><span class="prog-label">🌸 Future Me</span><span class="prog-vals">${fmt(fT)} / ${fmt(fI)} €</span></div><div class="prog-track"><div class="prog-fill ${fT>fI?'over':'future'}" style="width:${Math.min(100,income>0?fT/fI*100:0)}%"></div></div></div></div></div>${renderBucket('needs',nT)}${renderBucket('wants',wT)}${renderBucket('future',fT)}`;}
+function renderBucket(key,total){const b=B()[key];const rows=b.items.map((it,i)=>`<div class="item-row"><span class="item-dot ${key}"></span><input class="item-name" type="text" placeholder="Ajouter une dépense…" value="${it.name}" onchange="B()['${key}'].items[${i}].name=this.value;saveData()"><input class="item-amount" type="text" inputmode="decimal" placeholder="0,00" value="${it.amt||''}" onchange="B()['${key}'].items[${i}].amt=parseFloat(this.value.replace(',','.'))||0;calc()" oninput="B()['${key}'].items[${i}].amt=parseFloat(this.value.replace(',','.'))||0;saveData()"><span class="item-currency">€</span><button class="del-btn" onclick="delItem('${key}',${i})">×</button></div>`).join('');return`<div class="bucket" id="bucket-${key}"><div class="bucket-header" onclick="toggleBucket('${key}')"><div class="bucket-title-wrap"><span class="bucket-icon">${b.emoji}</span><span class="bucket-title">${b.label}</span><span class="bucket-badge ${key}">${b.pct}%</span></div><div style="display:flex;align-items:center;gap:6px"><span class="bucket-total">${fmt(total)} €</span><span class="bucket-chevron">▼</span></div></div><div class="bucket-body"><div class="items-wrap">${rows}</div><div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-top:4px"><button class="add-btn ${key}" onclick="addItem('${key}')">＋ Ajouter une ligne</button>${b.items.length>1?`<button class="undo-btn" onclick="undoItem('${key}')">↩ Annuler la dernière</button>`:''}</div></div></div>`;}
 function toggleBucket(k){document.getElementById('bucket-'+k).classList.toggle('collapsed');}
 function addItem(k){B()[k].items.push({name:'',amt:0});calc();saveData();}
 function delItem(k,i){const b=B()[k];if(b.items.length>1){b.items.splice(i,1);}calc();saveData();}
 function undoItem(k){const b=B()[k];if(b.items.length>1){b.items.pop();}calc();saveData();}
-function renderVacances(){
-  const grand=trips.reduce((s,t)=>s+tripTotal(t),0);
-  const cards=trips.map((t,ti)=>{
-    const total=tripTotal(t);
-    const secs=t.sections.map((sec,si)=>{
-      const st=secTotal(sec);
-      const rows=sec.items.map((it,ii)=>`<div class="vac-item-row"><span class="vac-dot"></span><input class="vac-item-name" type="text" placeholder="Description…" value="${it.name}" onchange="trips[${ti}].sections[${si}].items[${ii}].name=this.value;saveData()"><input class="vac-item-amount" type="text" inputmode="decimal" placeholder="0,00" value="${it.amt||''}" onchange="trips[${ti}].sections[${si}].items[${ii}].amt=parseFloat(this.value.replace(',','.'))||0;calc()" oninput="trips[${ti}].sections[${si}].items[${ii}].amt=parseFloat(this.value.replace(',','.'))||0;saveData()"><span class="vac-currency">€</span><button class="vac-del-btn" onclick="delVacItem(${ti},${si},${ii})">×</button></div>`).join('');
-      return `<div class="trip-section"><div class="trip-section-label"><span>${sec.title}</span><span class="trip-section-sub">${fmt(st)} €</span></div>${rows}<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="vac-add-btn" onclick="addVacItem(${ti},${si})">＋ Ajouter</button>${sec.items.length>1?`<button class="undo-btn" style="color:#fdba74" onclick="undoVacItem(${ti},${si})">↩ Annuler la dernière</button>`:''}</div></div>`;
-    }).join('');
-    const chips=t.sections.filter(s=>secTotal(s)>0).map(s=>`<span class="chip">${s.title.split(' ')[0]} ${fmt(secTotal(s))} €</span>`).join('');
-    return `<div class="trip-card"><div class="trip-header"><input class="trip-name-input" type="text" placeholder="🌍 Nom du voyage…" value="${t.name}" onchange="trips[${ti}].name=this.value;calc();saveData()"><span class="trip-total-badge">${fmt(total)} €</span></div>${secs}${chips?`<div class="trip-chips">${chips}</div>`:''}${trips.length>1?`<button class="del-trip-btn" onclick="delTrip(${ti})">🗑️ Supprimer ce voyage</button>`:''}</div>`;
-  }).join('');
-  document.getElementById('content').innerHTML=`<div class="vac-header-box"><h2>✈️ Planner Vacances</h2><p>Détaille chaque voyage par catégorie. Le total se calcule en temps réel.</p></div><div class="grand-total-bar"><span class="grand-total-label">💸 Total tous voyages</span><span class="grand-total-amount">${fmt(grand)} €</span></div>${cards}<button class="add-trip-btn" onclick="addTrip()">＋ Ajouter un voyage</button>`;
-}
+function renderVacances(){const grand=trips.reduce((s,t)=>s+tripTotal(t),0);const cards=trips.map((t,ti)=>{const total=tripTotal(t);const secs=t.sections.map((sec,si)=>{const st=secTotal(sec);const rows=sec.items.map((it,ii)=>`<div class="vac-item-row"><span class="vac-dot"></span><input class="vac-item-name" type="text" placeholder="Description…" value="${it.name}" onchange="trips[${ti}].sections[${si}].items[${ii}].name=this.value;saveData()"><input class="vac-item-amount" type="text" inputmode="decimal" placeholder="0,00" value="${it.amt||''}" onchange="trips[${ti}].sections[${si}].items[${ii}].amt=parseFloat(this.value.replace(',','.'))||0;calc()" oninput="trips[${ti}].sections[${si}].items[${ii}].amt=parseFloat(this.value.replace(',','.'))||0;saveData()"><span class="vac-currency">€</span><button class="vac-del-btn" onclick="delVacItem(${ti},${si},${ii})">×</button></div>`).join('');return`<div class="trip-section"><div class="trip-section-label"><span>${sec.title}</span><span class="trip-section-sub">${fmt(st)} €</span></div>${rows}<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="vac-add-btn" onclick="addVacItem(${ti},${si})">＋ Ajouter</button>${sec.items.length>1?`<button class="undo-btn" style="color:#fdba74" onclick="undoVacItem(${ti},${si})">↩ Annuler la dernière</button>`:''}</div></div>`;}).join('');const chips=t.sections.filter(s=>secTotal(s)>0).map(s=>`<span class="chip">${s.title.split(' ')[0]} ${fmt(secTotal(s))} €</span>`).join('');return`<div class="trip-card"><div class="trip-header"><input class="trip-name-input" type="text" placeholder="🌍 Nom du voyage…" value="${t.name}" onchange="trips[${ti}].name=this.value;calc();saveData()"><span class="trip-total-badge">${fmt(total)} €</span></div>${secs}${chips?`<div class="trip-chips">${chips}</div>`:''}${trips.length>1?`<button class="del-trip-btn" onclick="delTrip(${ti})">🗑️ Supprimer ce voyage</button>`:''}</div>`;}).join('');document.getElementById('content').innerHTML=`<div class="vac-header-box"><h2>✈️ Planner Vacances</h2><p>Détaille chaque voyage par catégorie. Le total se calcule en temps réel.</p></div><div class="grand-total-bar"><span class="grand-total-label">💸 Total tous voyages</span><span class="grand-total-amount">${fmt(grand)} €</span></div>${cards}<button class="add-trip-btn" onclick="addTrip()">＋ Ajouter un voyage</button>`;}
 function addVacItem(ti,si){trips[ti].sections[si].items.push({name:'',amt:0});calc();saveData();}
 function undoVacItem(ti,si){if(trips[ti].sections[si].items.length>1){trips[ti].sections[si].items.pop();}calc();saveData();}
 function delVacItem(ti,si,ii){if(trips[ti].sections[si].items.length>1){trips[ti].sections[si].items.splice(ii,1);}calc();saveData();}
@@ -224,6 +199,9 @@ function addTrip(){trips.push({name:'🌍 Nouveau voyage',sections:[{title:'✈�
 function saveData(){try{getMonthData(currentMonth).income=document.getElementById('income').value;localStorage.setItem('bdg_allmonths',JSON.stringify(allMonths));localStorage.setItem('bdg_curmonth',currentMonth);localStorage.setItem('bdg_trips',JSON.stringify(trips));localStorage.setItem('bdg_section',section);}catch(e){}}
 function loadData(){try{const am=localStorage.getItem('bdg_allmonths');if(am)allMonths=JSON.parse(am);const cm=localStorage.getItem('bdg_curmonth');if(cm)currentMonth=cm;document.getElementById('income').value=getMonthData(currentMonth).income||'2800';const tr=localStorage.getItem('bdg_trips');if(tr)trips=JSON.parse(tr);const sec=localStorage.getItem('bdg_section');if(sec){section=sec;document.querySelectorAll('.sec-tab').forEach(b=>b.classList.remove('active'));document.querySelector('.sec-tab.'+sec).classList.add('active');document.getElementById('content').className='content '+(sec==='budget'?'budget-bg':'vacances-bg');}}catch(e){}}
 function resetData(){if(!confirm('Effacer toutes les données et recommencer ?'))return;try{localStorage.clear();}catch(e){}location.reload();}
+function isPWA(){return window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;}
+function updateNav(s){document.querySelectorAll('.pwa-nav-btn').forEach(b=>b.classList.remove('active'));const id=s==='budget'?'navBudget':'navVacances';const el=document.getElementById(id);if(el)el.classList.add('active');}
+if(isPWA()){document.body.classList.add('is-pwa');const nav=document.getElementById('pwaNav');if(nav)nav.classList.add('visible');}
 loadData();render();
 </script>
 </body>
