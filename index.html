@@ -23,6 +23,7 @@
   .income-bar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.2);border-radius:14px;padding:10px 14px;margin-bottom:14px;width:100%;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.3);}
   .income-bar label{color:rgba(255,255,255,0.9);font-size:0.8rem;font-weight:600;white-space:nowrap;flex-shrink:0;}
   .income-bar input{border:none;border-radius:8px;background:rgba(255,255,255,0.25);color:white;padding:7px 10px;font-size:1.05rem;font-weight:700;flex:1;min-width:0;outline:none;text-align:center;-webkit-appearance:none;font-family:inherit;}
+  .income-bar input::placeholder{color:rgba(255,255,255,0.5);}
   .income-bar span{color:rgba(255,255,255,0.8);font-size:0.9rem;font-weight:600;flex-shrink:0;}
   .section-switcher{background:linear-gradient(135deg,#c026d3 0%,#9333ea 50%,#ec4899 100%);padding:0 16px;display:flex;gap:6px;}
   .sec-tab{flex:1;padding:10px 6px;border-radius:12px 12px 0 0;font-size:clamp(0.72rem,3.2vw,0.85rem);font-weight:700;cursor:pointer;border:none;transition:all 0.2s;text-align:center;line-height:1.4;-webkit-tap-highlight-color:transparent;}
@@ -133,6 +134,13 @@
   .trip-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #fff7ed;}
   .chip{background:#fff7ed;border:1px solid #fed7aa;border-radius:20px;font-size:0.7rem;padding:4px 10px;color:#c2410c;font-weight:600;}
   .add-trip-btn{width:100%;padding:14px;border-radius:14px;background:white;border:2px dashed #fde68a;color:#f97316;font-size:0.85rem;font-weight:700;cursor:pointer;margin-bottom:12px;font-family:inherit;-webkit-tap-highlight-color:transparent;}
+  /* BOUTON SAUVEGARDER FIXE */
+  .save-fixed{position:fixed;bottom:max(env(safe-area-inset-bottom),16px);right:16px;z-index:999;background:linear-gradient(135deg,#c026d3,#9333ea);color:white;border:none;border-radius:50px;padding:12px 22px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(192,38,211,0.45);-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:7px;transition:transform 0.15s,opacity 0.15s;}
+  .save-fixed:active{transform:scale(0.95);opacity:0.85;}
+  body.is-pwa .save-fixed{bottom:calc(max(env(safe-area-inset-bottom),8px) + 70px);}
+  .toast{position:fixed;bottom:calc(max(env(safe-area-inset-bottom),16px) + 60px);right:16px;background:#059669;color:white;border-radius:20px;padding:9px 18px;font-size:0.78rem;font-weight:700;z-index:2000;opacity:0;transition:opacity 0.3s;pointer-events:none;box-shadow:0 4px 16px rgba(5,150,105,0.4);}
+  .toast.show{opacity:1;}
+  body.is-pwa .toast{bottom:calc(max(env(safe-area-inset-bottom),8px) + 130px);}
   /* PWA NAV */
   .pwa-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(253,242,248,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid rgba(192,38,211,0.15);padding:8px 0 max(env(safe-area-inset-bottom),8px);z-index:1000;justify-content:space-around;align-items:center;}
   .pwa-nav.visible{display:flex;}
@@ -166,6 +174,8 @@
   <button class="pwa-nav-btn" id="navVacances" onclick="setSection('vacances');updateNav('vacances')"><span class="nav-icon">✈️</span>Vacances</button>
   <button class="pwa-nav-btn" onclick="window.location.reload()"><span class="nav-icon">🔄</span>Refresh</button>
 </div>
+<div class="toast" id="toast">✅ Sauvegardé !</div>
+<button class="save-fixed" onclick="saveData(true)">💾 Sauvegarder</button>
 <script>
 let section='budget',currentMonth='2026-07',allMonths={};
 const MONTHS=[{key:'2026-07',label:'Juil',year:'2026'},{key:'2026-08',label:'Août',year:'2026'},{key:'2026-09',label:'Sept',year:'2026'},{key:'2026-10',label:'Oct',year:'2026'},{key:'2026-11',label:'Nov',year:'2026'},{key:'2026-12',label:'Déc',year:'2026'},{key:'2027-01',label:'Janv',year:'2027'},{key:'2027-02',label:'Févr',year:'2027'},{key:'2027-03',label:'Mars',year:'2027'},{key:'2027-04',label:'Avr',year:'2027'},{key:'2027-05',label:'Mai',year:'2027'},{key:'2027-06',label:'Juin',year:'2027'}];
@@ -196,7 +206,18 @@ function undoVacItem(ti,si){if(trips[ti].sections[si].items.length>1){trips[ti].
 function delVacItem(ti,si,ii){if(trips[ti].sections[si].items.length>1){trips[ti].sections[si].items.splice(ii,1);}calc();saveData();}
 function delTrip(ti){if(trips.length>1){trips.splice(ti,1);}calc();saveData();}
 function addTrip(){trips.push({name:'🌍 Nouveau voyage',sections:[{title:'✈️ Vols',items:[{name:'',amt:0}]},{title:'🏨 Hébergement',items:[{name:'',amt:0}]},{title:'🚗 Transport',items:[{name:'',amt:0}]},{title:'🍽️ Nourriture',items:[{name:'',amt:0}]},{title:'🎡 Activités',items:[{name:'',amt:0}]},{title:'🛍️ Divers',items:[{name:'',amt:0}]}]});calc();saveData();}
-function saveData(){try{getMonthData(currentMonth).income=document.getElementById('income').value;localStorage.setItem('bdg_allmonths',JSON.stringify(allMonths));localStorage.setItem('bdg_curmonth',currentMonth);localStorage.setItem('bdg_trips',JSON.stringify(trips));localStorage.setItem('bdg_section',section);}catch(e){}}
+function saveData(showToast){
+  try{
+    getMonthData(currentMonth).income=document.getElementById('income').value;
+    localStorage.setItem('bdg_allmonths',JSON.stringify(allMonths));
+    localStorage.setItem('bdg_curmonth',currentMonth);
+    localStorage.setItem('bdg_trips',JSON.stringify(trips));
+    localStorage.setItem('bdg_section',section);
+    if(showToast){var t=document.getElementById('toast');if(t){t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2000);}}
+  }catch(e){}
+}
+window.addEventListener('pagehide',function(){saveData(false);});
+window.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveData(false);});
 function loadData(){try{const am=localStorage.getItem('bdg_allmonths');if(am)allMonths=JSON.parse(am);const cm=localStorage.getItem('bdg_curmonth');if(cm)currentMonth=cm;document.getElementById('income').value=getMonthData(currentMonth).income||'2800';const tr=localStorage.getItem('bdg_trips');if(tr)trips=JSON.parse(tr);const sec=localStorage.getItem('bdg_section');if(sec){section=sec;document.querySelectorAll('.sec-tab').forEach(b=>b.classList.remove('active'));document.querySelector('.sec-tab.'+sec).classList.add('active');document.getElementById('content').className='content '+(sec==='budget'?'budget-bg':'vacances-bg');}}catch(e){}}
 function resetData(){if(!confirm('Effacer toutes les données et recommencer ?'))return;try{localStorage.clear();}catch(e){}location.reload();}
 function isPWA(){return window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;}
